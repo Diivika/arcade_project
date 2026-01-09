@@ -15,12 +15,34 @@ MAX_JUMPS = 1
 CAMERA_LERP = 0.12
 
 
-class MyGame(arcade.Window):
-    def __init__(self, width, height, title):
-        super().__init__(width, height, title)
-        arcade.set_background_color(arcade.color.BLACK)
+class StartView(arcade.View):
+    def on_show(self):
+        """Настройка начального экрана"""
+        arcade.set_background_color(arcade.color.BLUE)
 
-    def setup(self):
+    def on_draw(self):
+        """Отрисовка начального экрана"""
+        self.clear()
+        # Батч для текста
+        self.batch = Batch()
+        start_text = arcade.Text("CloudHopper", self.window.width / 2, self.window.height / 2,
+                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
+        any_key_text = arcade.Text("Any key to start",
+                                   self.window.width / 2, self.window.height / 2 - 75,
+                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
+        self.batch.draw()
+
+    def on_key_press(self, key, modifiers):
+        """Начало игры при нажатии клавиши"""
+        game_view = MyGame()
+        self.window.show_view(game_view)
+
+
+class MyGame(arcade.View):
+    def __init__(self):
+        super().__init__()
+        arcade.set_background_color(arcade.color.BLUE)
+
         self.world_camera = Camera2D()
         self.gui_camera = Camera2D()
         self.left = self.right = self.up = self.down = self.jump_pressed = False
@@ -131,14 +153,10 @@ class MyGame(arcade.Window):
                 self.player.change_y *= 0.45
 
 
-def setup_game(width=1220, height=850, title="Аркадный Бегун"):
-    game = MyGame(width, height, title)
-    game.setup()
-    return game
-
-
 def main():
-    setup_game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    start_view = StartView()
+    window.show_view(start_view)
     arcade.run()
 
 
