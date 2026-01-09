@@ -5,7 +5,7 @@ from hero import Hero
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 640
-SCREEN_TITLE = "Real Jump"
+SCREEN_TITLE = "CloudHopper"
 GRAVITY = 2
 MOVE_SPEED = 6
 JUMP_SPEED = 40
