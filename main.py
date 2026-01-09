@@ -16,11 +16,11 @@ CAMERA_LERP = 0.12
 
 class WinView(arcade.View):
     def on_show(self):
-        """Настройка начального экрана"""
+        """Настройка экрана после победы"""
         arcade.set_background_color(arcade.color.WHITE)
 
     def on_draw(self):
-        """Отрисовка начального экрана"""
+        """Отрисовка экрана после победы"""
         self.clear()
         # Батч для текста
         self.batch = Batch()
@@ -39,11 +39,11 @@ class WinView(arcade.View):
 
 class LoseView(arcade.View):
     def on_show(self):
-        """Настройка начального экрана"""
+        """Настройка экрана после проигрыша"""
         arcade.set_background_color(arcade.color.WHITE)
 
     def on_draw(self):
-        """Отрисовка начального экрана"""
+        """Отрисовка экрана после проигрыша"""
         self.clear()
         # Батч для текста
         self.batch = Batch()
