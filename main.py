@@ -55,7 +55,7 @@ class MyGame(arcade.View):
 
         self.tile_map = arcade.load_tilemap("map1.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
-
+        self.coin_list = self.scene['coins']
         self.score = 0
         self.batch = Batch()
 
@@ -106,9 +106,9 @@ class MyGame(arcade.View):
         self.world_camera.position = (cam_x, cam_y)
         self.gui_camera.position = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
-        # self.text = arcade.Text(f'Score: {self.score}',
-        #                        10, self.height - 30, arcade.color.WHITE,
-        #                        24, batch=self.batch)
+        self.text = arcade.Text(f'Score: {self.score}/20',
+                                10, self.height - 30, arcade.color.BLACK,
+                                24, batch=self.batch)
 
         grounded = self.engine.can_jump(y_distance=6)
         want_jump = self.jump_pressed or (self.jump_buffer_timer > 0)
@@ -120,6 +120,9 @@ class MyGame(arcade.View):
                 self.jump_buffer_timer = 0
 
         self.engine.update()
+        for coin in arcade.check_for_collision_with_list(self.player, self.coin_list):
+            coin.remove_from_sprite_lists()
+            self.score += 1
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT,):
