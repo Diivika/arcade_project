@@ -14,6 +14,28 @@ JUMP_BUFFER = 0.12
 MAX_JUMPS = 1
 CAMERA_LERP = 0.12
 
+class WinView(arcade.View):
+    def on_show(self):
+        """Настройка начального экрана"""
+        arcade.set_background_color(arcade.color.WHITE)
+
+    def on_draw(self):
+        """Отрисовка начального экрана"""
+        self.clear()
+        # Батч для текста
+        self.batch = Batch()
+        start_text = arcade.Text("You win", self.window.width / 2, self.window.height / 2,
+                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
+        any_key_text = arcade.Text("Any key to restart",
+                                   self.window.width / 2, self.window.height / 2 - 75,
+                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
+        self.batch.draw()
+
+    def on_key_press(self, key, modifiers):
+        """Начало игры при нажатии клавиши"""
+        game_view = MyGame()
+        self.window.show_view(game_view)
+
 
 class LoseView(arcade.View):
     def on_show(self):
@@ -152,6 +174,13 @@ class MyGame(arcade.View):
         if spikes_hit:
             lose_view = LoseView()
             self.window.show_view(lose_view)
+            self.score = 0
+
+        exit = arcade.check_for_collision_with_list(self.player, self.scene['door'])
+
+        if exit:
+            win_view = WinView()
+            self.window.show_view(win_view)
             self.score = 0
 
     def on_key_press(self, key, modifiers):
