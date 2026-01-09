@@ -48,8 +48,8 @@ class MyGame(arcade.Window):
     def on_draw(self):
         self.clear()
         self.world_camera.use()
-        self.player_spritelist.draw()
         self.scene.draw()
+        self.player_spritelist.draw()
         self.gui_camera.use()
         self.batch.draw()
 
@@ -77,7 +77,7 @@ class MyGame(arcade.Window):
         half_w = self.world_camera.viewport_width / 2
         half_h = self.world_camera.viewport_height / 2
         world_w = 540
-        world_h = 1800
+        world_h = 3240
         cam_x = max(half_w, min(world_w - half_w, smooth[0]))
         cam_y = max(half_h, min(world_h - half_h, smooth[1]))
 
