@@ -31,7 +31,7 @@ class MyGame(arcade.Window):
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
 
-        self.tile_map = arcade.load_tilemap("map.tmx", scaling=1.8)
+        self.tile_map = arcade.load_tilemap("map1.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
         self.score = 0
@@ -56,12 +56,15 @@ class MyGame(arcade.Window):
     def on_update(self, delta_time):
         self.player.update(delta_time)
         self.player.change_y -= GRAVITY
-
         move = 0
         if self.left and not self.right:
             move = -MOVE_SPEED
+            self.player.is_moving_left = True
+            self.player.is_moving_right = False
         elif self.right and not self.left:
             move = MOVE_SPEED
+            self.player.is_moving_left = False
+            self.player.is_moving_right = True
         else:
             self.player.is_moving_left = False
             self.player.is_moving_right = False
@@ -73,8 +76,8 @@ class MyGame(arcade.Window):
 
         half_w = self.world_camera.viewport_width / 2
         half_h = self.world_camera.viewport_height / 2
-        world_w = 2000
-        world_h = 900
+        world_w = 540
+        world_h = 1800
         cam_x = max(half_w, min(world_w - half_w, smooth[0]))
         cam_y = max(half_h, min(world_h - half_h, smooth[1]))
 
