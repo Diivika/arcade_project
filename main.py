@@ -97,7 +97,6 @@ class MyGame(arcade.View):
         self.player = Hero(125, 125)
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
-
         self.tile_map = arcade.load_tilemap("map2.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
         self.coin_list = self.scene['coins']
