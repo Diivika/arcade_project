@@ -98,7 +98,7 @@ class MyGame(arcade.View):
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
 
-        self.tile_map = arcade.load_tilemap("map1.tmx", scaling=1.8)
+        self.tile_map = arcade.load_tilemap("map2.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
         self.coin_list = self.scene['coins']
         self.score = 0
@@ -107,7 +107,8 @@ class MyGame(arcade.View):
         self.engine = arcade.PhysicsEnginePlatformer(
             player_sprite=self.player,
             gravity_constant=GRAVITY,
-            walls=self.scene['platforms']
+            walls=self.scene['platforms'],
+            platforms=self.scene['moving_platforms'],
         )
 
         self.jumps_left = MAX_JUMPS
