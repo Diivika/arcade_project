@@ -2,6 +2,9 @@ import arcade
 from pyglet.graphics import Batch
 from arcade.camera import Camera2D
 from hero import Hero
+from arcade.gui import UIManager, UIFlatButton, UITextureButton, UILabel, UIInputText, UITextArea, UISlider, UIDropdown, \
+    UIMessageBox  # Это разные виджеты
+from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout  # А это менеджеры компоновки, как в pyQT
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 640
@@ -14,80 +17,219 @@ JUMP_BUFFER = 0.12
 MAX_JUMPS = 1
 CAMERA_LERP = 0.12
 
-class WinView(arcade.View):
+class PauseView(arcade.View):
+    def __init__(self, game_view, level):
+        super().__init__()
+        self.level = level
+        self.game_view = game_view
+        self.manager = UIManager(self.window)
+        self.manager.enable()
+        self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        self.create_widgets()
+        anchor = UIAnchorLayout()
+        anchor.add(child=self.box_layout, anchor_x="center", anchor_y="center")
+        self.manager.add(anchor)
+
+    def create_widgets(self):
+        title_label = UILabel(text="PAUSED", font_size=40, text_color=arcade.color.WHITE)
+        self.box_layout.add(title_label)
+        level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
+        self.continue_button = UIFlatButton(text="Продолжить", width=150, height=50)
+        self.continue_button.on_click = self.continue_gaming
+        level_layout.add(self.continue_button)
+        self.back_to_main = UIFlatButton(text="Вернуться в главное меню", width=200, height=50)
+        self.back_to_main.on_click = self.back_to_main_menu
+        level_layout.add(self.back_to_main)
+        self.restart_button = UIFlatButton(text="Начать сначала", width=150, height=50)
+        self.restart_button.on_click = self.restart
+        level_layout.add(self.restart_button)
+        self.box_layout.add(level_layout)
+
+    def continue_gaming(self, event=None):
+        self.window.show_view(self.game_view)
+        self.game_view.reset_controls()
+
+    def back_to_main_menu(self, event=None):
+        start_view = StartView()
+        self.window.show_view(start_view)
+
+    def restart(self, event=None):
+        game_view = MyGame(self.level)
+        self.window.show_view(game_view)
+
     def on_show(self):
-        """Настройка экрана после победы"""
-        arcade.set_background_color(arcade.color.WHITE)
+        self.manager.enable()
 
     def on_draw(self):
-        """Отрисовка экрана после победы"""
-        self.clear()
-        # Батч для текста
-        self.batch = Batch()
-        start_text = arcade.Text("You win", self.window.width / 2, self.window.height / 2,
-                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
-        any_key_text = arcade.Text("Any key to restart",
-                                   self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
-        self.batch.draw()
+        self.game_view.on_draw()
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                                          (0, 0, 0, 150))
+        self.manager.draw()
+
+    def on_hide_view(self):
+        self.manager.disable()
 
     def on_key_press(self, key, modifiers):
-        """Начало игры при нажатии клавиши"""
-        game_view = MyGame()
+        if key == arcade.key.ESCAPE:
+            self.continue_gaming()
+
+
+class WinView(arcade.View):
+    def __init__(self, level):
+        super().__init__()
+        self.level = level
+        self.manager = UIManager(self.window)
+        self.manager.enable()
+        self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        self.create_widgets()
+        anchor = UIAnchorLayout()
+        anchor.add(child=self.box_layout, anchor_x="center", anchor_y="center")
+        self.manager.add(anchor)
+
+    def create_widgets(self):
+        title_label = UILabel(text="You win", font_size=40, text_color=arcade.color.WHITE)
+        self.box_layout.add(title_label)
+        level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
+        self.back_to_main = UIFlatButton(text="Вернуться в главное меню", width=200, height=50)
+        self.back_to_main.on_click = self.back_to_main_menu
+        level_layout.add(self.back_to_main)
+        self.restart_button = UIFlatButton(text="Начать сначала", width=150, height=50)
+        self.restart_button.on_click = self.restart
+        level_layout.add(self.restart_button)
+        self.box_layout.add(level_layout)
+
+    def back_to_main_menu(self, event=None):
+        start_view = StartView()
+        self.window.show_view(start_view)
+
+    def restart(self, event=None):
+        game_view = MyGame(self.level)
+        self.window.show_view(game_view)
+
+    def on_show(self):
+        self.manager.enable()
+
+    def on_draw(self):
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                                          (0, 0, 0, 150))
+        self.manager.draw()
+
+    def on_hide_view(self):
+        self.manager.disable()
+
+    def on_key_press(self, key, modifiers):
+        game_view = MyGame(self.level)
         self.window.show_view(game_view)
 
 
 class LoseView(arcade.View):
+    def __init__(self, level):
+        super().__init__()
+        self.level = level
+        self.manager = UIManager(self.window)
+        self.manager.enable()
+        self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        self.create_widgets()
+        anchor = UIAnchorLayout()
+        anchor.add(child=self.box_layout, anchor_x="center", anchor_y="center")
+        self.manager.add(anchor)
+
+    def create_widgets(self):
+        title_label = UILabel(text="You losed", font_size=40, text_color=arcade.color.WHITE)
+        self.box_layout.add(title_label)
+        level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
+        self.back_to_main = UIFlatButton(text="Вернуться в главное меню", width=200, height=50)
+        self.back_to_main.on_click = self.back_to_main_menu
+        level_layout.add(self.back_to_main)
+        self.restart_button = UIFlatButton(text="Начать сначала", width=150, height=50)
+        self.restart_button.on_click = self.restart
+        level_layout.add(self.restart_button)
+        self.box_layout.add(level_layout)
+
+    def back_to_main_menu(self, event=None):
+        start_view = StartView()
+        self.window.show_view(start_view)
+
+    def restart(self, event=None):
+        game_view = MyGame(self.level)
+        self.window.show_view(game_view)
+
     def on_show(self):
-        """Настройка экрана после проигрыша"""
-        arcade.set_background_color(arcade.color.WHITE)
+        self.manager.enable()
 
     def on_draw(self):
-        """Отрисовка экрана после проигрыша"""
-        self.clear()
-        # Батч для текста
-        self.batch = Batch()
-        start_text = arcade.Text("You lose", self.window.width / 2, self.window.height / 2,
-                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
-        any_key_text = arcade.Text("Any key to restart",
-                                   self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
-        self.batch.draw()
+        arcade.draw_lrbt_rectangle_filled(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT,
+                                          (0, 0, 0, 150))
+        self.manager.draw()
+
+    def on_hide_view(self):
+        self.manager.disable()
 
     def on_key_press(self, key, modifiers):
-        """Начало игры при нажатии клавиши"""
-        game_view = MyGame()
+        game_view = MyGame(self.level)
         self.window.show_view(game_view)
 
 
 class StartView(arcade.View):
+    def __init__(self):
+        super().__init__()
+        self.manager = UIManager(self.window)
+        self.manager.enable()
+        self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        self.create_widgets()
+        anchor = UIAnchorLayout()
+        anchor.add(child=self.box_layout, anchor_x="center", anchor_y="center")
+        self.manager.add(anchor)
+
+    def create_widgets(self):
+        title_label = UILabel(text="CloudHopper", font_size=32, text_color=arcade.color.WHITE)
+        self.box_layout.add(title_label)
+        self.box_layout.add(UILabel(text="", height=20))
+        subtitle_label = UILabel(text="Select Level", font_size=20, text_color=arcade.color.LIGHT_GRAY)
+        self.box_layout.add(subtitle_label)
+        self.box_layout.add(UILabel(text="", height=20))
+        level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
+        self.level1_button = UIFlatButton(text="Level 1", width=150, height=50)
+        self.level1_button.on_click = lambda event: self.on_level_select(1)
+        level_layout.add(self.level1_button)
+        self.level2_button = UIFlatButton(text="Level 2", width=150, height=50)
+        self.level2_button.on_click = lambda event: self.on_level_select(2)
+        level_layout.add(self.level2_button)
+        self.level3_button = UIFlatButton(text="Level 3", width=150, height=50)
+        self.level3_button.on_click = lambda event: self.on_level_select(3)
+        level_layout.add(self.level3_button)
+        self.box_layout.add(level_layout)
+        self.box_layout.add(UILabel(text="", height=30))
+        self.exit_button = UIFlatButton(text="Exit", width=200, height=50)
+        self.exit_button.on_click = self.on_exit_click
+        self.box_layout.add(self.exit_button)
+        self.box_layout.add(UILabel(text="", height=20))
+        controls_label = UILabel(text="Controls: ← → to move, SPACE to jump",font_size=14,text_color=arcade.color.LIGHT_GRAY)
+        self.box_layout.add(controls_label)
+
+    def on_level_select(self, level):
+        game_view = MyGame(level)
+        self.window.show_view(game_view)
+
+    def on_exit_click(self, event):
+        arcade.exit()
+
     def on_show(self):
-        """Настройка начального экрана"""
-        arcade.set_background_color(arcade.color.BLUE)
+        arcade.set_background_color(arcade.color.GRAY)
+        self.manager.enable()
 
     def on_draw(self):
-        """Отрисовка начального экрана"""
         self.clear()
-        # Батч для текста
-        self.batch = Batch()
-        start_text = arcade.Text("CloudHopper", self.window.width / 2, self.window.height / 2,
-                                 arcade.color.WHITE, font_size=50, anchor_x="center", batch=self.batch)
-        any_key_text = arcade.Text("Any key to start",
-                                   self.window.width / 2, self.window.height / 2 - 75,
-                                   arcade.color.GRAY, font_size=20, anchor_x="center", batch=self.batch)
-        self.batch.draw()
+        self.manager.draw()
 
-    def on_key_press(self, key, modifiers):
-        """Начало игры при нажатии клавиши"""
-        game_view = MyGame()
-        self.window.show_view(game_view)
+    def on_hide_view(self):
+        self.manager.disable()
 
 
 class MyGame(arcade.View):
-    def __init__(self):
+    def __init__(self, level):
         super().__init__()
-        arcade.set_background_color(arcade.color.BLUE)
-
+        self.level = level
         self.world_camera = Camera2D()
         self.gui_camera = Camera2D()
         self.left = self.right = self.up = self.down = self.jump_pressed = False
@@ -97,18 +239,37 @@ class MyGame(arcade.View):
         self.player = Hero(125, 125)
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
-        self.tile_map = arcade.load_tilemap("map2.tmx", scaling=1.8)
+        if level == 1:
+            self.tile_map = arcade.load_tilemap("map1.tmx", scaling=1.8)
+        elif level == 2:
+            self.tile_map = arcade.load_tilemap("map2.tmx", scaling=1.8)
+        elif level == 3:
+            self.tile_map = arcade.load_tilemap("map3.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
         self.coin_list = self.scene['coins']
         self.score = 0
         self.batch = Batch()
 
-        self.engine = arcade.PhysicsEnginePlatformer(
-            player_sprite=self.player,
-            gravity_constant=GRAVITY,
-            walls=self.scene['platforms'],
-            platforms=self.scene['moving_platforms'],
-        )
+        if level == 1:
+            self.engine = arcade.PhysicsEnginePlatformer(
+                player_sprite=self.player,
+                gravity_constant=GRAVITY,
+                walls=self.scene['platforms'],
+            )
+        elif level == 2:
+            self.engine = arcade.PhysicsEnginePlatformer(
+                player_sprite=self.player,
+                gravity_constant=GRAVITY,
+                walls=self.scene['platforms'],
+                platforms=self.scene['moving_platforms'],
+            )
+        elif level == 3:
+            self.engine = arcade.PhysicsEnginePlatformer(
+                player_sprite=self.player,
+                gravity_constant=GRAVITY,
+                walls=self.scene['platforms'],
+                platforms=self.scene['moving_platforms'],
+            )
 
         self.jumps_left = MAX_JUMPS
 
@@ -172,14 +333,14 @@ class MyGame(arcade.View):
         spikes_hit = arcade.check_for_collision_with_list(self.player, self.scene['spikes'])
 
         if spikes_hit:
-            lose_view = LoseView()
+            lose_view = LoseView(self.level)
             self.window.show_view(lose_view)
             self.score = 0
 
         exit = arcade.check_for_collision_with_list(self.player, self.scene['door'])
 
         if exit:
-            win_view = WinView()
+            win_view = WinView(self.level)
             self.window.show_view(win_view)
             self.score = 0
 
@@ -197,6 +358,9 @@ class MyGame(arcade.View):
         elif key == arcade.key.SPACE:
             self.jump_pressed = True
             self.jump_buffer_timer = JUMP_BUFFER
+        if key == arcade.key.ESCAPE:
+            pause_view = PauseView(self, self.level)
+            self.window.show_view(pause_view)
 
     def on_key_release(self, key, modifiers):
         if key in (arcade.key.LEFT,):
@@ -213,6 +377,19 @@ class MyGame(arcade.View):
             self.jump_pressed = False
             if self.player.change_y > 0:
                 self.player.change_y *= 0.45
+
+    def reset_controls(self):
+        self.left = False
+        self.right = False
+        self.up = False
+        self.down = False
+        self.jump_pressed = False
+        self.jump_buffer_timer = 0.0
+        self.player.is_moving_left = False
+        self.player.is_moving_right = False
+        self.player.change_x = 0
+        self.player.change_y = 0
+
 
 
 def main():
