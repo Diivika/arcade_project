@@ -172,7 +172,12 @@ class LoseView(arcade.View):
 
 class StartView(arcade.View):
     def __init__(self):
+
         super().__init__()
+        self.background_music = arcade.load_sound("music/Intro Theme.mp3")
+        self.back_player = self.background_music.play(loop=True)
+
+
         self.manager = UIManager(self.window)
         self.manager.enable()
         self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
@@ -210,6 +215,7 @@ class StartView(arcade.View):
     def on_level_select(self, level):
         game_view = MyGame(level)
         self.window.show_view(game_view)
+        arcade.stop_sound(self.back_player)
 
     def on_exit_click(self, event):
         arcade.exit()
@@ -228,7 +234,13 @@ class StartView(arcade.View):
 
 class MyGame(arcade.View):
     def __init__(self, level):
+        self.play = False
         super().__init__()
+        self.jump_sound = arcade.load_sound(":resources:/sounds/jump1.wav")
+        self.background_music_1 = arcade.load_sound("music/Mushroom Theme.mp3")
+        self.background_music_2 = arcade.load_sound("music/Desert Theme.mp3")
+        self.back_player_1 = self.background_music_1.play(loop=True)
+
         self.level = level
         self.world_camera = Camera2D()
         self.gui_camera = Camera2D()
@@ -358,9 +370,14 @@ class MyGame(arcade.View):
         elif key == arcade.key.SPACE:
             self.jump_pressed = True
             self.jump_buffer_timer = JUMP_BUFFER
+            arcade.play_sound(self.jump_sound)
         if key == arcade.key.ESCAPE:
             pause_view = PauseView(self, self.level)
             self.window.show_view(pause_view)
+
+            arcade.stop_sound(self.back_player_1)
+                
+
 
     def on_key_release(self, key, modifiers):
         if key in (arcade.key.LEFT,):
@@ -377,6 +394,8 @@ class MyGame(arcade.View):
             self.jump_pressed = False
             if self.player.change_y > 0:
                 self.player.change_y *= 0.45
+        elif key == arcade.key.ESCAPE:
+            self.back_player_1 = self.background_music_1.play(loop=True)
 
     def reset_controls(self):
         self.left = False
