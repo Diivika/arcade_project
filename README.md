@@ -13,6 +13,10 @@
 * Стартовое окно
 * Некий подсчет результатов
 
+### Используемые библиотеки:
+
+- **pygame-arcade**
+
 ## 📋 Пояснительная записка по запуску игры
 
 > **Важно:** Для запуска программы убедитесь, установлен Python версии не меньше **3.11** и установлена библиотека
@@ -80,9 +84,14 @@ enemies.**
 * Start window
 * Some kind of result calculation
 
+### Libraries used:
+
+- **pygame-arcade**
+
 ## 📋 Game Installation Guide
 
-> **Important:** To run the program, make sure Python version **3.11 or higher** is installed and the **pygame arcade** library is set up.
+> **Important:** To run the program, make sure Python version **3.11 or higher** is installed and the **pygame arcade**
+> library is set up.
 
 ### 🚀 Installation Instructions
 
@@ -125,9 +134,9 @@ Two levels are available in the game:
 
 ### 🎯 Controls
 
-| Action | Key |
-|-------------------|--------------------|
-| **Walk left** | ← (left arrow) |
+| Action         | Key             |
+|----------------|-----------------|
+| **Walk left**  | ← (left arrow)  |
 | **Walk right** | → (right arrow) |
-| **Jump** | Space (space) |
-| **Pause** | Escape (ESC) |
+| **Jump**       | Space (space)   |
+| **Pause**      | Escape (ESC)    |
