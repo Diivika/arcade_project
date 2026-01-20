@@ -174,7 +174,7 @@ class StartView(arcade.View):
     def __init__(self):
 
         super().__init__()
-        self.background_music = arcade.load_sound("music/Intro Theme.mp3")
+        self.background_music = arcade.load_sound("Intro Theme.mp3")
         self.back_player = self.background_music.play(loop=True)
 
 
@@ -237,8 +237,8 @@ class MyGame(arcade.View):
         self.play = False
         super().__init__()
         self.jump_sound = arcade.load_sound(":resources:/sounds/jump1.wav")
-        self.background_music_1 = arcade.load_sound("music/Mushroom Theme.mp3")
-        self.background_music_2 = arcade.load_sound("music/Desert Theme.mp3")
+        self.background_music_1 = arcade.load_sound("Mushroom Theme.mp3")
+        self.background_music_2 = arcade.load_sound("Desert Theme.mp3")
         self.back_player_1 = self.background_music_1.play(loop=True)
 
         self.level = level
