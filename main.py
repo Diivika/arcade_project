@@ -20,6 +20,7 @@ CAMERA_LERP = 0.12
 class PauseView(arcade.View):
     def __init__(self, game_view, level):
         super().__init__()
+        self.fl = True
         self.level = level
         self.game_view = game_view
         self.manager = UIManager(self.window)
@@ -77,6 +78,8 @@ class PauseView(arcade.View):
 class WinView(arcade.View):
     def __init__(self, level):
         super().__init__()
+        self.music = arcade.load_sound("music/Вы пришли первым.mp3")
+        self.player = arcade.play_sound(self.music)
         self.level = level
         self.manager = UIManager(self.window)
         self.manager.enable()
@@ -101,10 +104,12 @@ class WinView(arcade.View):
     def back_to_main_menu(self, event=None):
         start_view = StartView()
         self.window.show_view(start_view)
+        arcade.stop_sound(self.player)
 
     def restart(self, event=None):
         game_view = MyGame(self.level)
         self.window.show_view(game_view)
+        arcade.stop_sound(self.player)
 
     def on_show(self):
         self.manager.enable()
@@ -125,6 +130,8 @@ class WinView(arcade.View):
 class LoseView(arcade.View):
     def __init__(self, level):
         super().__init__()
+        self.music = arcade.load_sound("music/Игра закончилась.mp3")
+        self.player = arcade.play_sound(self.music)
         self.level = level
         self.manager = UIManager(self.window)
         self.manager.enable()
@@ -149,10 +156,12 @@ class LoseView(arcade.View):
     def back_to_main_menu(self, event=None):
         start_view = StartView()
         self.window.show_view(start_view)
+        arcade.stop_sound(self.player)
 
     def restart(self, event=None):
         game_view = MyGame(self.level)
         self.window.show_view(game_view)
+        arcade.stop_sound(self.player)
 
     def on_show(self):
         self.manager.enable()
@@ -234,8 +243,8 @@ class StartView(arcade.View):
 
 class MyGame(arcade.View):
     def __init__(self, level):
-        self.play = False
         super().__init__()
+        self.play = False
         self.jump_sound = arcade.load_sound(":resources:/sounds/jump1.wav")
         self.background_music_1 = arcade.load_sound("music/Mushroom Theme.mp3")
         self.background_music_2 = arcade.load_sound("music/Desert Theme.mp3")
@@ -348,6 +357,7 @@ class MyGame(arcade.View):
             lose_view = LoseView(self.level)
             self.window.show_view(lose_view)
             self.score = 0
+            arcade.stop_sound(self.back_player_1)
 
         exit = arcade.check_for_collision_with_list(self.player, self.scene['door'])
 
@@ -355,6 +365,8 @@ class MyGame(arcade.View):
             win_view = WinView(self.level)
             self.window.show_view(win_view)
             self.score = 0
+            arcade.stop_sound(self.back_player_1)
+
 
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT,):
@@ -371,11 +383,12 @@ class MyGame(arcade.View):
             self.jump_pressed = True
             self.jump_buffer_timer = JUMP_BUFFER
             arcade.play_sound(self.jump_sound)
-        if key == arcade.key.ESCAPE:
+        elif key == arcade.key.ESCAPE:
             pause_view = PauseView(self, self.level)
             self.window.show_view(pause_view)
 
             arcade.stop_sound(self.back_player_1)
+
 
 
 
@@ -396,6 +409,16 @@ class MyGame(arcade.View):
                 self.player.change_y *= 0.45
         elif key == arcade.key.ESCAPE:
             self.back_player_1 = self.background_music_1.play(loop=True)
+            self.play = True
+        elif key == arcade.key.W:
+            if self.play:
+                self.back_player_1 = self.background_music_1.play(loop=True)
+                self.play = False
+        else:
+            self.back_player_1 = self.background_music_1.play(loop=True)
+
+
+
 
     def reset_controls(self):
         self.left = False
