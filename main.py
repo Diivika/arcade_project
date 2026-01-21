@@ -111,6 +111,10 @@ class WinView(arcade.View):
         self.restart_button = UIFlatButton(text="Начать сначала", width=150, height=50)
         self.restart_button.on_click = self.restart
         level_layout.add(self.restart_button)
+        if self.level != 3:
+            self.next_level_button = UIFlatButton(text='Следующий уровень', width=160, height=50)
+            self.next_level_button.on_click = self.next_level
+            level_layout.add(self.next_level_button)
         self.box_layout.add(level_layout)
 
     def back_to_main_menu(self, event=None):
@@ -282,7 +286,7 @@ class MyGame(arcade.View):
         self.jump_buffer_timer = 0.0
         self.time_since_ground = 999.0
         self.jumps_left = MAX_JUMPS
-        self.player = Hero(125, 125)
+        self.player = Hero(700, 3200)
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
         if self.level == 1:
