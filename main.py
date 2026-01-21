@@ -392,7 +392,6 @@ class MyGame(arcade.View):
             self.score = 0
             arcade.stop_sound(self.back_player_1)
 
-
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT,):
             self.left = True
@@ -439,9 +438,6 @@ class MyGame(arcade.View):
         else:
             self.back_player_1 = self.background_music_1.play(loop=True)
 
-
-
-
     def reset_controls(self):
         self.left = False
         self.right = False
@@ -453,7 +449,6 @@ class MyGame(arcade.View):
         self.player.is_moving_right = False
         self.player.change_x = 0
         self.player.change_y = 0
-
 
 
 def main():
