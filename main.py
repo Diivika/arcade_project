@@ -5,6 +5,7 @@ from hero import Hero
 from arcade.gui import UIManager, UIFlatButton, UITextureButton, UILabel, UIInputText, UITextArea, UISlider, UIDropdown, \
     UIMessageBox  # Это разные виджеты
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout  # А это менеджеры компоновки, как в pyQT
+import os
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 640
@@ -16,6 +17,7 @@ COYOTE_TIME = 0.08
 JUMP_BUFFER = 0.12
 MAX_JUMPS = 1
 CAMERA_LERP = 0.12
+
 
 class PauseView(arcade.View):
     def __init__(self, game_view, level):
@@ -75,9 +77,10 @@ class PauseView(arcade.View):
 
 
 class WinView(arcade.View):
-    def __init__(self, level):
+    def __init__(self, level, score):
         super().__init__()
         self.level = level
+        self.score = score
         self.manager = UIManager(self.window)
         self.manager.enable()
         self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
@@ -89,6 +92,15 @@ class WinView(arcade.View):
     def create_widgets(self):
         title_label = UILabel(text="You win", font_size=40, text_color=arcade.color.WHITE)
         self.box_layout.add(title_label)
+        with open(f'scores/score_map{self.level}.txt', 'r') as f:
+            last_score = int(f.readline().split('/')[0])
+            if last_score < self.score:
+                with open(f'scores/score_map{self.level}.txt', 'w') as w:
+                    w.write(f'{str(self.score)}/20')
+                    record = UILabel(text='NEW RECORD!!!', font_size=40, text_color=arcade.color.WHITE)
+                    self.box_layout.add(record)
+        score_label = UILabel(text=f'Your score: {self.score}/20', font_size=40, text_color=arcade.color.WHITE)
+        self.box_layout.add(score_label)
         level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
         self.back_to_main = UIFlatButton(text="Вернуться в главное меню", width=200, height=50)
         self.back_to_main.on_click = self.back_to_main_menu
@@ -96,11 +108,19 @@ class WinView(arcade.View):
         self.restart_button = UIFlatButton(text="Начать сначала", width=150, height=50)
         self.restart_button.on_click = self.restart
         level_layout.add(self.restart_button)
+        if self.level != 3:
+            self.next_level_button = UIFlatButton(text='Следующий уровень', width=160, height=50)
+            self.next_level_button.on_click = self.next_level
+            level_layout.add(self.next_level_button)
         self.box_layout.add(level_layout)
 
     def back_to_main_menu(self, event=None):
         start_view = StartView()
         self.window.show_view(start_view)
+
+    def next_level(self, event=None):
+        game_view = MyGame(self.level + 1)
+        self.window.show_view(game_view)
 
     def restart(self, event=None):
         game_view = MyGame(self.level)
@@ -172,15 +192,13 @@ class LoseView(arcade.View):
 
 class StartView(arcade.View):
     def __init__(self):
-
         super().__init__()
         self.background_music = arcade.load_sound("music/Intro Theme.mp3")
         self.back_player = self.background_music.play(loop=True)
-
-
         self.manager = UIManager(self.window)
         self.manager.enable()
         self.box_layout = UIBoxLayout(vertical=True, align="center", space_between=10)
+        self.create_txt()
         self.create_widgets()
         anchor = UIAnchorLayout()
         anchor.add(child=self.box_layout, anchor_x="center", anchor_y="center")
@@ -193,23 +211,25 @@ class StartView(arcade.View):
         subtitle_label = UILabel(text="Select Level", font_size=20, text_color=arcade.color.LIGHT_GRAY)
         self.box_layout.add(subtitle_label)
         self.box_layout.add(UILabel(text="", height=20))
-        level_layout = UIBoxLayout(vertical=False, align="center", space_between=20)
-        self.level1_button = UIFlatButton(text="Level 1", width=150, height=50)
-        self.level1_button.on_click = lambda event: self.on_level_select(1)
-        level_layout.add(self.level1_button)
-        self.level2_button = UIFlatButton(text="Level 2", width=150, height=50)
-        self.level2_button.on_click = lambda event: self.on_level_select(2)
-        level_layout.add(self.level2_button)
-        self.level3_button = UIFlatButton(text="Level 3", width=150, height=50)
-        self.level3_button.on_click = lambda event: self.on_level_select(3)
-        level_layout.add(self.level3_button)
+        level_layout = UIBoxLayout(vertical=False, align='center', space_between=20)
+        for i in range(1, 4):
+            level = UIBoxLayout(vertical=True, align='center', space_between=5)
+            self.level_button = UIFlatButton(text=f'Level {i}', width=150, height=50)
+            self.level_button.on_click = lambda event, level_num=i: self.on_level_select(level_num)
+            with open(f'scores/score_map{i}.txt', 'r') as scores:
+                scores = scores.readline()
+            score_label = UILabel(text=f'Best score: {scores}', font_size=15, text_color=arcade.color.WHITE)
+            level.add(self.level_button)
+            level.add(score_label)
+            level_layout.add(level)
         self.box_layout.add(level_layout)
         self.box_layout.add(UILabel(text="", height=30))
         self.exit_button = UIFlatButton(text="Exit", width=200, height=50)
         self.exit_button.on_click = self.on_exit_click
         self.box_layout.add(self.exit_button)
         self.box_layout.add(UILabel(text="", height=20))
-        controls_label = UILabel(text="Controls: ← → to move, SPACE to jump",font_size=14,text_color=arcade.color.LIGHT_GRAY)
+        controls_label = UILabel(text="Controls: ← → to move, SPACE to jump", font_size=14,
+                                 text_color=arcade.color.LIGHT_GRAY)
         self.box_layout.add(controls_label)
 
     def on_level_select(self, level):
@@ -231,6 +251,15 @@ class StartView(arcade.View):
     def on_hide_view(self):
         self.manager.disable()
 
+    def create_txt(self):
+        os.makedirs("scores", exist_ok=True)
+        for i in range(1, 4):
+            try:
+                with open(f'scores/score_map{i}.txt', 'x') as file:
+                    file.write('0/20')
+            except FileExistsError:
+                pass
+
 
 class MyGame(arcade.View):
     def __init__(self, level):
@@ -251,11 +280,11 @@ class MyGame(arcade.View):
         self.player = Hero(125, 125)
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
-        if level == 1:
+        if self.level == 1:
             self.tile_map = arcade.load_tilemap("map1.tmx", scaling=1.8)
-        elif level == 2:
+        elif self.level == 2:
             self.tile_map = arcade.load_tilemap("map2.tmx", scaling=1.8)
-        elif level == 3:
+        elif self.level == 3:
             self.tile_map = arcade.load_tilemap("map3.tmx", scaling=1.8)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
         self.coin_list = self.scene['coins']
@@ -352,7 +381,7 @@ class MyGame(arcade.View):
         exit = arcade.check_for_collision_with_list(self.player, self.scene['door'])
 
         if exit:
-            win_view = WinView(self.level)
+            win_view = WinView(self.level, self.score)
             self.window.show_view(win_view)
             self.score = 0
 
@@ -376,8 +405,6 @@ class MyGame(arcade.View):
             self.window.show_view(pause_view)
 
             arcade.stop_sound(self.back_player_1)
-
-
 
     def on_key_release(self, key, modifiers):
         if key in (arcade.key.LEFT,):
@@ -408,7 +435,6 @@ class MyGame(arcade.View):
         self.player.is_moving_right = False
         self.player.change_x = 0
         self.player.change_y = 0
-
 
 
 def main():
