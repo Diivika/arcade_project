@@ -286,7 +286,7 @@ class MyGame(arcade.View):
         self.jump_buffer_timer = 0.0
         self.time_since_ground = 999.0
         self.jumps_left = MAX_JUMPS
-        self.player = Hero(700, 3200)
+        self.player = Hero(125, 125)
         self.player_spritelist = arcade.SpriteList()
         self.player_spritelist.append(self.player)
         if self.level == 1:
