@@ -318,7 +318,6 @@ class MyGame(arcade.View):
                 player_sprite=self.player,
                 gravity_constant=GRAVITY,
                 walls=self.scene['platforms'],
-                platforms=self.scene['moving_platforms'],
             )
 
         self.jumps_left = MAX_JUMPS
