@@ -305,6 +305,7 @@ class MyGame(arcade.View):
                 player_sprite=self.player,
                 gravity_constant=GRAVITY,
                 walls=self.scene['platforms'],
+                ladders=self.scene['ladders']
             )
         elif level == 2:
             self.engine = arcade.PhysicsEnginePlatformer(
@@ -373,6 +374,17 @@ class MyGame(arcade.View):
             if grounded or can_coyote:
                 self.engine.jump(JUMP_SPEED)
                 self.jump_buffer_timer = 0
+
+        on_ladders = arcade.check_for_collision_with_list(self.player, self.scene['ladders'])
+        on_ladder = self.engine.is_on_ladder()
+
+        if on_ladders:
+            if self.up and not self.down:
+                self.player.change_y = LADDER_SPEED
+            elif self.down and not self.up:
+                self.player.change_y = -LADDER_SPEED
+            else:
+                self.player.change_y = 0
 
         self.engine.update()
         for coin in arcade.check_for_collision_with_list(self.player, self.coin_list):
