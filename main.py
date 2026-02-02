@@ -1,4 +1,4 @@
-import arcade
+import arcade, random
 from pyglet.graphics import Batch
 from arcade.camera import Camera2D
 from hero import Hero
@@ -6,6 +6,7 @@ from arcade.gui import UIManager, UIFlatButton, UITextureButton, UILabel, UIInpu
     UIMessageBox  # Это разные виджеты
 from arcade.gui.widgets.layout import UIAnchorLayout, UIBoxLayout  # А это менеджеры компоновки, как в pyQT
 import os
+from arcade.particles import FadeParticle, Emitter, EmitBurst, EmitInterval, EmitMaintainCount
 
 SCREEN_WIDTH = 960
 SCREEN_HEIGHT = 640
@@ -17,6 +18,30 @@ COYOTE_TIME = 0.08
 JUMP_BUFFER = 0.12
 MAX_JUMPS = 1
 CAMERA_LERP = 0.12
+LADDER_SPEED = 5
+SMOKE_TEX = arcade.make_soft_circle_texture(20, arcade.color.LIGHT_GRAY, 255, 80)
+
+
+def smoke_mutator(p):  # Дым раздувается и плавно исчезает
+    p.scale_x *= 1.02
+    p.scale_y *= 1.02
+    p.alpha = max(0, p.alpha - 2)
+
+
+def make_smoke_puff(x, y):
+    # Короткий «пых» дыма: медленно плывёт и распухает
+    return Emitter(
+        center_xy=(x, y),
+        emit_controller=EmitBurst(12),
+        particle_factory=lambda e: FadeParticle(
+            filename_or_texture=SMOKE_TEX,
+            change_xy=arcade.math.rand_in_circle((0.0, 0.0), 0.6),
+            lifetime=random.uniform(1.5, 2.5),
+            start_alpha=200, end_alpha=0,
+            scale=random.uniform(0.6, 0.9),
+            mutation_callback=smoke_mutator,
+        ),
+    )
 
 
 class PauseView(arcade.View):
@@ -299,6 +324,7 @@ class MyGame(arcade.View):
         self.coin_list = self.scene['coins']
         self.score = 0
         self.batch = Batch()
+        self.emitters = []
 
         if level == 1:
             self.engine = arcade.PhysicsEnginePlatformer(
@@ -328,6 +354,8 @@ class MyGame(arcade.View):
         self.world_camera.use()
         self.scene.draw()
         self.player_spritelist.draw()
+        for e in self.emitters:
+            e.draw()
         self.gui_camera.use()
         self.batch.draw()
 
@@ -374,6 +402,8 @@ class MyGame(arcade.View):
             if grounded or can_coyote:
                 self.engine.jump(JUMP_SPEED)
                 self.jump_buffer_timer = 0
+                self.emitters.append(make_smoke_puff(self.player.center_x, self.player.center_y))
+                arcade.play_sound(self.jump_sound)
 
         on_ladders = arcade.check_for_collision_with_list(self.player, self.scene['ladders'])
         on_ladder = self.engine.is_on_ladder()
@@ -407,6 +437,13 @@ class MyGame(arcade.View):
             self.score = 0
             arcade.stop_sound(self.back_player_1)
 
+        emitters_copy = self.emitters.copy()  # Защищаемся от мутаций списка
+        for e in emitters_copy:
+            e.update(delta_time)
+        for e in emitters_copy:
+            if e.can_reap():  # Готов к уборке?
+                self.emitters.remove(e)
+
     def on_key_press(self, key, modifiers):
         if key in (arcade.key.LEFT,):
             self.left = True
@@ -421,7 +458,6 @@ class MyGame(arcade.View):
         elif key == arcade.key.SPACE:
             self.jump_pressed = True
             self.jump_buffer_timer = JUMP_BUFFER
-            arcade.play_sound(self.jump_sound)
         elif key == arcade.key.ESCAPE:
             pause_view = PauseView(self, self.level)
             self.window.show_view(pause_view)
