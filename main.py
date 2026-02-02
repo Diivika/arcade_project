@@ -486,8 +486,6 @@ class MyGame(arcade.View):
             if self.play:
                 self.back_player_1 = self.background_music_1.play(loop=True)
                 self.play = False
-        else:
-            self.back_player_1 = self.background_music_1.play(loop=True)
 
     def reset_controls(self):
         self.left = False
