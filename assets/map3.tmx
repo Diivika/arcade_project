@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="100" tilewidth="18" tileheight="18" infinite="0" nextlayerid="8" nextobjectid="1">
- <tileset firstgid="1" source="assets/blocks.tsx"/>
- <tileset firstgid="181" source="assets/backgrounds.tsx"/>
- <tileset firstgid="208" source="assets/farm_textures.tsx"/>
- <tileset firstgid="320" source="assets/gh.tsx"/>
+ <tileset firstgid="1" source="blocks.tsx"/>
+ <tileset firstgid="181" source="backgrounds.tsx"/>
+ <tileset firstgid="208" source="farm_textures.tsx"/>
+ <tileset firstgid="320" source="gh.tsx"/>
  <layer id="2" name="background" width="30" height="100">
   <data encoding="csv">
 186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,186,
