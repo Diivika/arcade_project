@@ -52,6 +52,10 @@
 
 ![Уровень 2](images_for_readme/lvl2.jpg)
 
+##### **Уровень 3**
+
+![Уровень 3](images_for_readme/lvl3.jpg)
+
 #### Результаты игры
 
 ##### **Победа**
@@ -121,6 +125,10 @@ Two levels are available in the game:
 ##### **Level 2**
 
 ![Level 2](images_for_readme/lvl2.jpg)
+
+##### **Level 3**
+
+![Level 3](images_for_readme/lvl3.jpg)
 
 #### Game Results
 
