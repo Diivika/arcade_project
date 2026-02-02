@@ -339,12 +339,14 @@ class MyGame(arcade.View):
                 gravity_constant=GRAVITY,
                 walls=self.scene['platforms'],
                 platforms=self.scene['moving_platforms'],
+                ladders=self.scene['ladders']
             )
         elif level == 3:
             self.engine = arcade.PhysicsEnginePlatformer(
                 player_sprite=self.player,
                 gravity_constant=GRAVITY,
                 walls=self.scene['platforms'],
+                ladders=self.scene['ladders']
             )
 
         self.jumps_left = MAX_JUMPS
